@@ -1,0 +1,10 @@
+;$Id$
+name = GST
+description = GST (Growing Strong Together) Helper Module
+package = GST
+core = 7.x
+files[] = gst.module
+;dependencies[] = autoload 
+;php = 5.2
+
+

@@ -1,0 +1,112 @@
+<?php
+// $Id$ 
+/** 
+ * @file 
+ * GST (Growing Strong Together) Helper Module
+ * 
+ */
+
+// _gst_include_field_collection_widget();
+
+
+function _gst_include_field_collection_widget() {
+  $gst_path = drupal_get_path('module', 'gst');
+  require_once("$gst_path/gst.field-collection.widget.inc");  
+}
+
+/*
+ * gst_include_form() includes the form inc file
+ *
+ * This can be used in #submit array before the sumbit functions which are located in the
+ * inc file
+ */
+function gst_include_form() {
+  module_load_include("inc", "gst", "gst.form"); // Loads gst/gst.form.inc
+}
+
+/*
+ * gst_include_api() includes the API inc file
+ *
+ * This can be used in #submit array before the sumbit functions which are located in the
+ * inc file
+ */
+function gst_include_api() {
+  module_load_include("inc", "gst", "gst.api"); // Loads gst/gst.api.inc
+}
+
+/** 
+ * Implements hook_help(). 
+ */ 
+function gst_help($path, $arg) {
+  if ($path == 'admin/help#gst') { 
+    return t('GST (Growing Strong Together) Helper Module.'); 
+  }   
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function gst_init() {
+  // FirePHP Library : http://www.firephp.org/HQ/Use.htm
+  // Docs: http://docs.sourcemint.org/firephp.org/firephp/1/-docs/API/FirePHP
+  $firephp_path = libraries_get_path('FirePHPCore');
+  $firephp_path = ($firephp_path ? $firephp_path . '/lib/FirePHPCore/' : '');
+  include_once $firephp_path . 'FirePHP.class.php';
+  //module_load_include('php', 'devel', "FirePHPCore/lib/FirePHPCore/FirePHP.class");
+  //require_once('FirePHPCore/FirePHP.class.php');  
+  global $firephp;
+  $firephp = FirePHP::getInstance(true);
+  $options = array('maxObjectDepth' => 7,
+                   'maxArrayDepth' => 7,
+                   'maxDepth' => 10,
+                   'useNativeJsonEncode' => true,
+                   'includeLineNumbers' => true);
+  $firephp->setOptions($options);  // or FB::setOptions($options);  
+  //$firephp->setEnabled(false);  // To turn off ALL FirePHP Console Messages
+  
+  
+  
+}
+
+
+
+/**
+ * Implements hook_form_alter()
+ * 
+ */
+function gst_form_alter(&$form, &$form_state, $form_id) {
+  global $user;  
+
+  $gst_forms = array('gstgroupschedule_node_form', 'gstgroup_node_form');  
+  if (array_search($form_id, $gst_forms) !== FALSE) {
+    gst_include_form();
+    if (isset($form['#node'])) {
+      $node = $form['#node'];
+      $function = 'gst_' . $node->type . '_form_alter'; // gst_CTYPE_form_alter
+      if (function_exists($function)) {
+        $function($form, $form_state, $form_id);
+      }
+    }    
+  }
+}
+
+
+/**
+ * Implementation of hook_page_alter().
+ */
+function gst_page_alter(&$page) {
+  global $user;
+  $foo = 1;
+}
+
+/**
+ * Implementation of hook_page_alter().
+ */
+function gst_page_build(&$page) {
+  $foo = 1;
+//  dsm($page['content']['system_main']['test_select'], "PB:test select");
+//  dsm($page['content']['system_main']['field_g_parent_type'], "PB:field_g_parent_type");
+}
+
+
+
